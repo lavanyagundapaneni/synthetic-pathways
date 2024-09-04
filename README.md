@@ -1,1 +1,2 @@
-
+## Synthetic Academic Pathway Data Generation Using Amazon Bedrock
+This document describes the process of generating synthetic academic pathway data for students in the German education system using Amazon Bedrock's LLaMA 3 model. The generated data includes details like current grade, school type, abitur score, future course, university, and more. This code aims to create realistic and logically consistent synthetic data entries.
