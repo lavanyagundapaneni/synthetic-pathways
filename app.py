@@ -121,9 +121,5 @@ for entry in synthetic_entries:
     else:
         print(f"Invalid number of fields in entry: {entry}")
 
-columns = [
-    "Current Grade", "School Type", "Abitur Score", "Future Course",
-    "University", "Duration", "Year", "Category", "Degree",
-    "Subject", "Country", "Financial Status", "Stream", "Curriculum"
-]
+
 
