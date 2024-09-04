@@ -129,7 +129,7 @@ synthetic_entries = generate_synthetic_data(prompt_template, n_samples=20)
 print("Generation complete.")
 ```
 
-## 7.Parsing Generated Entries:
+## 7. Parsing Generated Entries:
 This function extracts the relevant fields from each generated entry. It splits the entry by lines and processes each field to remove unnecessary prefixes.
 
 ```def parse_entry(entry):
@@ -145,7 +145,7 @@ This function extracts the relevant fields from each generated entry. It splits 
 
 ```
 
-## 8.Structuring and Validating the Data:
+## 8. Structuring and Validating the Data:
 The code parses the generated entries and ensures that each entry contains the expected number of fields. Invalid entries are filtered out.
 
 ```synthetic_data = []
