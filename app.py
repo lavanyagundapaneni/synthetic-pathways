@@ -66,39 +66,35 @@ def generate_synthetic_data(prompt, n_samples=20, max_retries=3):
 
 prompt_template = """Generate a synthetic academic pathway entry for a student in the German education system. Ensure each entry is unique and realistic.
 
+1. Current Grade: (Choose different grades from 10th, 11th, 12th, considering the typical age range and school progress)
+2. School Type: (Choose from Gymnasium, Realschule, Hauptschule, and consider possible transitions between school types based on performance)
+3. Abitur Score: (Vary the score between 1.0 to 4.0, where 1.0 is the best. Ensure scores correlate with potential university courses and future opportunities)
+4. Future Course: (Choose various courses like Engineering, Medicine, Law, Arts, Humanities, Sciences, Business Administration, etc., considering the student's background and interests)
+5. University: (Choose different universities in Germany, like Ludwig Maximilian University of Munich, University of Heidelberg, Technical University of Munich, etc.)
+6. Duration: (Vary between 3 to 5 years, depending on the degree and course complexity)
+7. Year: (Choose different years between 2025 to 2030, taking into account the expected time of graduation and course duration)
+8. Degree: (Choose different degrees like Bachelor, Master, or Dipl.-Ing., considering the future course selected)
+9. Subject: (Choose different subjects like Economics, Computer Science, Mechanical Engineering, Philosophy, etc., aligning with the future course)
+10. Country: Germany (This should be constant, as we're focusing on the German education system)
+11. Stream: (Choose different streams like Naturwissenschaften (Natural Sciences), Geisteswissenschaften (Humanities), Wirtschaftswissenschaften (Economics), etc.)
+12. Internships/Praktikum: (choose about any relevant internships or practical experience, including the field, duration, and role)
+13. Aspirations: (Outline the student's career goals or academic ambitions, such as becoming a researcher, pursuing a managerial role, etc.)
+14. Extracurricular Activities: (List any extracurricular activities, such as robotics clubs, coding clubs, online courses, and internships in tech, that the student is involved in)
 Please provide the response in the following format:
-
-1. Current Grade: 10th
-   School Type: Gymnasium
-   Abitur Score: 2.5
-   Future Course: Computer Science
-   University: Technical University of Munich
-   Duration: 3 years
-   Year: 2028
-   Degree: Bachelor's
-   Subject: Computer Science
-   Country: Germany
-   Stream: Naturwissenschaften (Natural Sciences)
-   internships/praktikum:Summer coding bootcamp focused on software development
-   extra activities: coding club,robotics etc..
-   Aspirations:Aspires to work as a data scientist specializing in big data analytics
-
-2. Current Grade: 11th
-   School Type: Realschule
-   Abitur Score: 3.8
-   Future Course: Medicine
-   University: Ludwig Maximilian University of Munich
-   Duration: 5 years
-   Year: 2030
-   Degree: Bachelor's
-   Subject: Medicine
-   Country: Germany
-   Stream: Medizin (Medicine)
-   internships/praktikum:Completed a 3-month internship at a community health center focusing on general medicine
-   extra activities:Active member of the school's Debate Club
-   Aspirations:Aims to become a pediatrician specializing in child healthcare
-
-Generate similar entries below:
+Current Grade: ...
+School Type: ...
+Abitur Score: ...
+Future Course: ...
+University: ...
+Duration: ...
+Year: ...
+Degree: ...
+Subject: ...
+Country: Germany
+Stream: ...
+Internships/Praktikum: ...
+Aspirations: ...
+Extracurricular Activities: ...
 """
 
 print("Generating synthetic entries...")
