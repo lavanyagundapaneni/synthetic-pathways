@@ -21,3 +21,69 @@ bedrock_client = boto3.client(
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
 )
 ```
+
+## 2. Generating Synthetic Data:
+Use a predefined prompt template to generate synthetic entries. This function manages error handling and ensures each entry is formatted correctly.
+
+```def generate_synthetic_data(prompt, n_samples, max_gen_len, temperature):
+    synthetic_data = []
+    
+    for i in range(n_samples):
+        try:
+            response = bedrock_client.invoke_model(
+                modelId="anthropic.claude-v2",
+                body={
+                    "prompt": prompt,
+                    "max_tokens_to_sample": max_gen_len,
+                    "temperature": temperature
+                }
+            )
+            response_text = response.get("body", "").strip()
+
+            if "Current Grade:" in response_text and "Future Course:" in response_text:
+                synthetic_data.append(response_text)
+            else:
+                print(f"Unexpected response format at sample {i + 1}: {response_text}")
+                
+        except Exception as e:
+            print(f"Error at sample {i + 1}: {e}")
+            time.sleep(1)  # Adding a delay in case of an error to avoid rapid retries
+    
+    return synthetic_data
+```
+
+## 3. Prompt Template: 
+Define the structure of the synthetic academic pathway entries, ensuring each generated entry is well-defined and unique.
+
+```prompt_template = """
+Current Grade: (choose different grades from 9th,10th,11th)
+Future Course: (choose various courses and universities)
+Duration: (vary between 2 to 4 years)
+Year: (choose different years between 2025 to 2030)
+Category: K12
+School: (choose different schools)
+Degree: (choose different degrees like Bachelors, Masters)
+Subject: (choose different subjects like Economics, Computer Science, etc.)
+University: (choose different universities)
+Country: (choose different countries)
+Financial Status: (choose budget in numericals)
+Stream: (choose different streams like mpc,bipc,cec,hec etc...)
+Curriculum: (choose different curriculum like cbse,ssc,etc.... )
+
+Please provide the response in the following format:
+Current Grade: ...
+Future Course: ...
+Duration: ...
+Year: ...
+Category: ...
+School: ...
+Degree: ...
+Subject: ...
+University: ...
+Country: ...
+Financial Status: ...
+Stream: ...
+Curriculum: ...
+"""
+```
+
