@@ -1,55 +1,46 @@
 import pandas as pd
 import os
 import re
-import boto3
+import openai
 import json
 from dotenv import load_dotenv
 
 load_dotenv()
 
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_REGION = os.getenv('AWS_REGION')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-bedrock_client = boto3.client(
-    'bedrock-runtime',
-    region_name=AWS_REGION,
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-)
+openai.api_key = OPENAI_API_KEY
 
-def call_bedrock(prompt):
+def call_openai(prompt):
     try:
-        native_request = {
-            "prompt": prompt,
-            "max_gen_len": 2048,
-            "temperature": 0.5, 
-        }
-        response = bedrock_client.invoke_model(
-            modelId='meta.llama3-70b-instruct-v1:0',
-            body=json.dumps(native_request)
+        client = openai.OpenAI(api_key=OPENAI_API_KEY) 
+        response = client.chat.completions.create(
+            model="gpt-4-turbo",  # Use the appropriate model version
+            messages=[{"role": "system", "content": "You are a helpful AI assistant."},
+                      {"role": "user", "content": prompt}],
+            max_tokens=2048,
+            temperature=0.5
         )
-        model_response = json.loads(response['body'].read())
-        return model_response['generation']
+        return response.choices[0].message.content.strip()
     except Exception as e:
         raise Exception(f"An error occurred: {e}")
 
 def is_valid_response(response):
     required_fields = [
-        "Current Grade:", "School Type:", "Abitur Score:", "Future Course:",
-        "University:", "Duration:", "Year:", "Category:", "Degree:",
-        "Subject:", "Country:", "Financial Status:", "Stream:", "Curriculum:"
+        "Full Name:", "Phone Number:", "Username:", "Country:",
+        "State:", "City:", "Postal Code:", "Financial Situation:", "Grade:",
+        "Grade Point Average:", "Curriculum:", "Stream:", "LinkedIn Profile:"
     ]
     return all(field in response for field in required_fields)
 
 
-def generate_synthetic_data(prompt, n_samples=20, max_retries=3):
+def generate_synthetic_data(prompt, n_samples=20, max_retries=8):
     synthetic_data = []
     for i in range(n_samples):
         retries = 0
         while retries < max_retries:
             try:
-                response = call_bedrock(prompt)
+                response = call_openai(prompt)
                 if is_valid_response(response):
                     synthetic_data.append(response.strip())
                     break
@@ -64,37 +55,39 @@ def generate_synthetic_data(prompt, n_samples=20, max_retries=3):
     return synthetic_data
 
 
-prompt_template = """Generate a synthetic academic pathway entry for a student in the German education system. Ensure each entry is unique and realistic.
+prompt_template = """Generate a synthetic user profile for a student pursuing higher education. 
+Ensure that the data is realistic and aligns with real-world patterns. Each entry should be unique.
 
-1. Current Grade: (Choose different grades from 10th, 11th, 12th, considering the typical age range and school progress)
-2. School Type: (Choose from Gymnasium, Realschule, Hauptschule, and consider possible transitions between school types based on performance)
-3. Abitur Score: (Vary the score between 1.0 to 4.0, where 1.0 is the best. Ensure scores correlate with potential university courses and future opportunities)
-4. Future Course: (Choose various courses like Engineering, Medicine, Law, Arts, Humanities, Sciences, Business Administration, etc., considering the student's background and interests)
-5. University: (Choose different universities in Germany, like Ludwig Maximilian University of Munich, University of Heidelberg, Technical University of Munich, etc.)
-6. Duration: (Vary between 3 to 5 years, depending on the degree and course complexity)
-7. Year: (Choose different years between 2025 to 2030, taking into account the expected time of graduation and course duration)
-8. Degree: (Choose different degrees like Bachelor, Master, or Dipl.-Ing., considering the future course selected)
-9. Subject: (Choose different subjects like Economics, Computer Science, Mechanical Engineering, Philosophy, etc., aligning with the future course)
-10. Country: Germany (This should be constant, as we're focusing on the German education system)
-11. Stream: (Choose different streams like Naturwissenschaften (Natural Sciences), Geisteswissenschaften (Humanities), Wirtschaftswissenschaften (Economics), etc.)
-12. Internships/Praktikum: (choose about any relevant internships or practical experience, including the field, duration, and role)
-13. Aspirations: (Outline the student's career goals or academic ambitions, such as becoming a researcher, pursuing a managerial role, etc.)
-14. Extracurricular Activities: (List any extracurricular activities, such as robotics clubs, coding clubs, online courses, and internships in tech, that the student is involved in)
+1. Full Name: (Generate the names from different countries )  
+2. Phone Number: (Generate a valid, region-specific phone number)  
+3. Username: (Generate a unique, natural-looking username)  
+4. Country: (Choose a relevant country, e.g., USA, India, Germany, Canada)  
+5. State: (Pick a realistic state based on the chosen country)  
+6. City: (Generate a major or mid-sized city from the chosen state)  
+7. Postal Code: (Generate a valid postal code for the city)  
+8. Financial Situation: (Choose from: 0-25L, 25L-75L, 75L-3CR+)  
+9. School Name: (Generate realistic school names based on the country)  
+10. Grade: (Choose from 9th, 10th, 11th, 12th, considering typical school progress)  
+11. Grade Point Average (GPA): (Vary between 0%-35%, 36%-60%, 61%-75%, 76%-85%, 86%-95%, 96%-100%)  
+12. Curriculum: (Choose from CBSE, ICSE, IB, IGCSE, Nordic, etc.)  
+13. Stream: (Choose from MPC, BIPC, CEC, HEC, MEC)  
+14. LinkedIn Profile: (Generate a natural-looking LinkedIn URL format)  
+
 Please provide the response in the following format:
-Current Grade: ...
-School Type: ...
-Abitur Score: ...
-Future Course: ...
-University: ...
-Duration: ...
-Year: ...
-Degree: ...
-Subject: ...
-Country: Germany
+Full Name: ...
+Phone Number: ...
+Username: ...
+Country: ...
+State: ...
+City: ...
+Postal Code: ...
+Financial Situation: ...
+School Name: ...
+Grade: ...
+Grade Point Average (GPA): ...
+Curriculum: ...
 Stream: ...
-Internships/Praktikum: ...
-Aspirations: ...
-Extracurricular Activities: ...
+LinkedIn Profile: ...
 """
 
 print("Generating synthetic entries...")
@@ -116,10 +109,7 @@ def parse_entry(entry):
 synthetic_data = []
 for entry in synthetic_entries:
     parsed = parse_entry(entry)
-    if len(parsed) == 150:
+    if len(parsed) == 14:
         synthetic_data.append(parsed)
     else:
         print(f"Invalid number of fields in entry: {entry}")
-
-
-
